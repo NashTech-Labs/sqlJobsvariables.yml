@@ -1,0 +1,94 @@
+parameters:
+- name: appDeploymentTarget
+  type: string
+  
+- name: key
+  type: string
+
+- name: sqlJobStateAKSApps 
+  type: string
+  default: ''
+
+- name: sqlJobStateWorkloadName
+  type: string
+  default: ''
+
+- name: sqlJobExtensionPointWorkloadName
+  type: string  
+  default: ''
+
+- name: SQLJob_ExtensionPoint
+  type: string  
+  default: '' 
+
+- name: sqlJobViewStateAKSApps
+  type: string  
+  default: ''  
+
+- name: sqlJobViewStateWorkloadName
+  type: string  
+  default: ''  
+
+- name: sqlJobExtensionPointAKSApps
+  type: string  
+  default: ''  
+ 
+- name: enablesqlJobsVariables
+  type: boolean
+  default: true  
+   
+steps:
+- ${{ if and(eq(parameters.appDeploymentTarget, 'AKS'), eq(parameters.key, 'SQLJob-ImportImage')) }}:
+  - pwsh: |
+      "##vso[task.setvariable variable=SQLJob.targetContainerRegistry]$(environment.containerRegistry)"
+      "##vso[task.setvariable variable=SQLJob.sourceImage]$(environment.sourceContainerRegistry).azurecr.io/sqljob:v$(build.configVersion)"
+      "##vso[task.setvariable variable=SQLJob.targetImage]sqljob:v$(build.configVersion)"
+      "##vso[task.setvariable variable=SQLJob.sourceContainerRegistry.SPUserName]$(environment.sourceContainerRegistry.servicePrincipalApplicationId)"
+      "##vso[task.setvariable variable=SQLJob.sourceContainerRegistry.SPPassword]$(environment.sourceContainerRegistry.servicePrincipalClientAuth)"
+    name: SetImportImageVariables
+    displayName: Set Import Image Variables
+
+- ${{ if and(eq(parameters.appDeploymentTarget, 'AKS'), eq(parameters.key, 'SQLJob_State-DeploymentMatrix')) }}:
+  - pwsh: |
+      "##vso[task.setvariable variable=SQLJob_State.aksApps]${{ parameters.sqlJobStateAKSApps }}"
+      "##vso[task.setvariable variable=SQLJob_State.workloadName]${{ parameters.sqlJobStateWorkloadName }}"
+    name: SetAKSAppDeploymentList
+    displayName: Set AKS App Deployment List
+
+- ${{ if and(eq(parameters.appDeploymentTarget, 'AKS'), eq(parameters.key, 'SQLJob_ViewState-DeploymentMatrix')) }}:
+  - pwsh: |
+      "##vso[task.setvariable variable=SQLJob_ViewState.aksApps]${{ parameters.sqlJobViewStateAKSApps }}"
+      "##vso[task.setvariable variable=SQLJob_ViewState.workloadName]${{ parameters.sqlJobViewStateWorkloadName }}"
+    name: SetAKSAppDeploymentList
+    displayName: Set AKS App Deployment List
+
+- ${{ if and(eq(parameters.appDeploymentTarget, 'AKS'), eq(parameters.key, 'SQLJob_ExtensionPoint-DeploymentMatrix')) }}:
+  - pwsh: |
+      "##vso[task.setvariable variable=SQLJob_ExtensionPoint.aksApps]${{ parameters.sqlJobExtensionPointAKSApps }}"
+      "##vso[task.setvariable variable=SQLJob_ExtensionPoint.workloadName]${{ parameters.sqlJobExtensionPointWorkloadName }}"
+    name: SetAKSAppDeploymentList
+    displayName: Set AKS App Deployment List
+
+- ${{ if and(eq(parameters.appDeploymentTarget, 'AKS'), eq(parameters.key, 'SQLJob_State')) }}:
+  - pwsh: |
+      "##vso[task.setvariable variable=SQLJob_State.containerRegistry]$(environment.containerRegistry).azurecr.io"
+      "##vso[task.setvariable variable=SQLJob_State.image]$(environment.containerRegistry).azurecr.io/sqljob:v$(build.configVersion)"
+      "##vso[task.setvariable variable=SQLJob_State.workloadName]${{ parameters.sqlJobStateWorkloadName }}"
+    name: SetAKSDeploymentVariables
+    displayName: Set AKS Deployment Variables
+
+- ${{ if and(eq(parameters.appDeploymentTarget, 'AKS'), eq(parameters.key, 'SQLJob_ViewState')) }}:
+  - pwsh: |
+      "##vso[task.setvariable variable=SQLJob_ViewState.containerRegistry]$(environment.containerRegistry).azurecr.io"
+      "##vso[task.setvariable variable=SQLJob_ViewState.image]$(environment.containerRegistry).azurecr.io/sqljob:v$(build.configVersion)"
+      "##vso[task.setvariable variable=SQLJob_ViewState.workloadName]${{ parameters.sqlJobViewStateWorkloadName }}"
+    name: SetAKSDeploymentVariables
+    displayName: Set AKS Deployment Variables
+
+- ${{ if and(eq(parameters.appDeploymentTarget, 'AKS'), eq(parameters.key, 'SQLJob_ExtensionPoint')) }}:
+  - pwsh: |
+      "##vso[task.setvariable variable=SQLJob_ExtensionPoint.containerRegistry]$(environment.containerRegistry).azurecr.io"
+      "##vso[task.setvariable variable=SQLJob_ExtensionPoint.image]$(environment.containerRegistry).azurecr.io/sqljob:v$(build.configVersion)"
+      "##vso[task.setvariable variable=SQLJob_ExtensionPoint.workloadName]${{ parameters.sqlJobExtensionPointWorkloadName }}"
+    name: SetAKSDeploymentVariables
+    displayName: Set AKS Deployment Variables
